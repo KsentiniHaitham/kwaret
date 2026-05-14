@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Environment files (contains secrets)
+.env.local
+.env.*.local
+backend/.env.local
+backend/.env.*.local
+
+# Symfony
+var/
+public/bundles/
+config/jwt/
+
+# Uploads (not versioned)
+backend/public/uploads/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.sw?
+
+# Logs
+*.log
+npm-debug.log*
