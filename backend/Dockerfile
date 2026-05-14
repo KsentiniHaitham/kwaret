@@ -26,8 +26,9 @@ WORKDIR /var/www
 # Copy everything first
 COPY . .
 
-# Install dependencies WITH scripts so symfony/runtime is properly bootstrapped
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install dependencies — plugins enabled (COMPOSER_ALLOW_SUPERUSER) so symfony/runtime
+# can register itself, but --no-scripts skips the broken symfony-cmd auto-scripts
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # Directories & permissions
 RUN mkdir -p public/uploads/products var/cache var/log \
