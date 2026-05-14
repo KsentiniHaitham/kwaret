@@ -1,0 +1,4 @@
+# Force LF for shell scripts and config files used in Linux containers
+docker/start.sh text eol=lf
+docker/nginx.conf text eol=lf
+Dockerfile text eol=lf

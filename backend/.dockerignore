@@ -6,4 +6,3 @@ var/
 config/jwt/
 compose.yaml
 compose.override.yaml
-docker/
