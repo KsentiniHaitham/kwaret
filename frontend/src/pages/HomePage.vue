@@ -19,7 +19,7 @@
           </p>
           <div style="display:flex;gap:12px;margin-bottom:48px;flex-wrap:wrap;">
             <RouterLink to="/shop" class="btn-primary" style="text-decoration:none;">Explorer la boutique →</RouterLink>
-            <RouterLink to="/register" class="btn-ghost" style="text-decoration:none;">Créer un compte</RouterLink>
+            <RouterLink v-if="!auth.isLoggedIn" to="/register" class="btn-ghost" style="text-decoration:none;">Créer un compte</RouterLink>
           </div>
           <div style="display:flex;gap:40px;">
             <div v-for="s in stats" :key="s.label">
@@ -98,6 +98,7 @@
 import { ref, onMounted } from 'vue'
 import api from '@/api'
 import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
 import ProductCard from '@/components/ProductCard.vue'
 
 const categories = ref([])
@@ -105,6 +106,7 @@ const featured = ref([])
 const loadingFeatured = ref(true)
 const toast = ref('')
 const cart = useCartStore()
+const auth = useAuthStore()
 
 const stats = [
   { value: '2K+', label: 'Clients satisfaits' },
