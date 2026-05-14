@@ -18,6 +18,9 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Allow composer plugins to run as root (needed for symfony/flex & symfony/runtime)
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 WORKDIR /var/www
 
 # Copy everything first
