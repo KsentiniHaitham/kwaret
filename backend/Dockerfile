@@ -26,6 +26,9 @@ WORKDIR /var/www
 # Copy everything first
 COPY . .
 
+# Ensure .env exists and is readable (Symfony requires it even in prod)
+RUN touch /var/www/.env && chmod 644 /var/www/.env
+
 # Install dependencies — plugins enabled (COMPOSER_ALLOW_SUPERUSER) so symfony/runtime
 # can register itself, but --no-scripts skips the broken symfony-cmd auto-scripts
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
