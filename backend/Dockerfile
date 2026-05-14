@@ -20,25 +20,20 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Install PHP deps (layer cache)
-COPY composer.json composer.lock symfony.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-
-# Copy app
+# Copy everything first
 COPY . .
 
-# Clear Symfony cache
-RUN APP_ENV=prod php bin/console cache:clear --no-warmup --env=prod \
-    && APP_ENV=prod php bin/console cache:warmup --env=prod
+# Install dependencies WITH scripts so symfony/runtime is properly bootstrapped
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Directories & permissions
 RUN mkdir -p public/uploads/products var/cache var/log \
     && chown -R www-data:www-data var public
 
-# Copy nginx template & startup script
+# Nginx template & startup script
 COPY docker/nginx.conf /etc/nginx/nginx.conf.template
 COPY docker/start.sh /start.sh
-RUN chmod +x /start.sh
+RUN sed -i 's/\r//' /start.sh && chmod +x /start.sh
 
 EXPOSE 8080
 
