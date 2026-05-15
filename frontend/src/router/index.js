@@ -34,6 +34,7 @@ const routes = [
       { path: 'stats',      name: 'admin-stats',      component: () => import('@/pages/admin/AdminStats.vue') },
       { path: 'promos',      name: 'admin-promos',      component: () => import('@/pages/admin/AdminPromos.vue') },
       { path: 'gift-cards', name: 'admin-gift-cards', component: () => import('@/pages/admin/AdminGiftCards.vue') },
+      { path: 'reviews',    name: 'admin-reviews',    component: () => import('@/pages/admin/AdminReviews.vue') },
     ],
   },
 

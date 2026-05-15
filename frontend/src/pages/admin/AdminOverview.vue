@@ -6,7 +6,7 @@
     </div>
 
     <!-- KPI cards -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">
+    <div class="kpi-grid" style="display:grid;gap:14px;margin-bottom:28px;">
       <div v-for="kpi in kpis" :key="kpi.label" class="card" style="padding:20px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
           <span style="font-size:22px;">{{ kpi.icon }}</span>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Status breakdown -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;">
+    <div class="status-grid" style="display:grid;gap:14px;margin-bottom:28px;">
       <div class="card" style="padding:24px;">
         <div style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Commandes par statut</div>
         <div v-if="loading" style="display:flex;flex-direction:column;gap:8px;">
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Quick links -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;">
       <RouterLink v-for="link in quickLinks" :key="link.to" :to="link.to"
         class="card" style="padding:20px;text-decoration:none;display:flex;align-items:center;gap:14px;"
         onmouseover="this.style.borderColor='rgba(129,140,248,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
@@ -94,6 +94,9 @@ const quickLinks = [
   { to: '/admin/products',   icon: '📦', label: 'Gérer les produits',   sub: 'Ajouter, modifier, supprimer' },
   { to: '/admin/categories', icon: '🏷️', label: 'Gérer les catégories', sub: 'Organiser le catalogue' },
   { to: '/admin/orders',     icon: '🛒', label: 'Gérer les commandes',  sub: 'Mettre à jour les statuts' },
+  { to: '/admin/reviews',    icon: '⭐', label: 'Avis clients',          sub: 'Modérer les évaluations' },
+  { to: '/admin/recharges',  icon: '💳', label: 'Recharges',             sub: 'Valider les paiements' },
+  { to: '/admin/tickets',    icon: '💬', label: 'Support',               sub: 'Répondre aux tickets' },
 ]
 
 onMounted(async () => {
@@ -105,4 +108,15 @@ onMounted(async () => {
 
 <style scoped>
 @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:.2} }
+
+.kpi-grid    { grid-template-columns: repeat(4, 1fr); }
+.status-grid { grid-template-columns: 1fr 1fr; }
+
+@media (max-width: 900px) {
+  .kpi-grid    { grid-template-columns: repeat(2, 1fr); }
+  .status-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 500px) {
+  .kpi-grid    { grid-template-columns: 1fr 1fr; }
+}
 </style>

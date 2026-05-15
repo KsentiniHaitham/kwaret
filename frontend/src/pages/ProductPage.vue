@@ -75,6 +75,56 @@
       </div>
     </div>
 
+    <!-- Reviews section -->
+    <div v-if="product" style="margin-top:56px;">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap;">
+        <h2 style="font-size:24px;font-weight:800;letter-spacing:-.5px;">Avis <span class="gradient-text">clients</span></h2>
+        <div v-if="reviewData.count > 0" style="display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;gap:2px;">
+            <span v-for="i in 5" :key="i" style="font-size:18px;">{{ i <= Math.round(reviewData.average) ? '⭐' : '☆' }}</span>
+          </div>
+          <span class="gradient-text-cyan" style="font-size:20px;font-weight:800;">{{ reviewData.average }}</span>
+          <span style="color:#475569;font-size:13px;">({{ reviewData.count }} avis)</span>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div v-if="reviewsLoading" style="display:flex;flex-direction:column;gap:12px;">
+        <div v-for="n in 3" :key="n" style="height:80px;border-radius:16px;background:rgba(255,255,255,0.03);animation:pulse 1.5s infinite;"></div>
+      </div>
+
+      <!-- No reviews -->
+      <div v-else-if="reviewData.reviews.length === 0"
+        style="text-align:center;padding:48px 0;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:20px;">
+        <div style="font-size:40px;margin-bottom:12px;">⭐</div>
+        <p style="color:#475569;font-size:14px;">Aucun avis pour ce produit pour l'instant.</p>
+        <p style="color:#334155;font-size:13px;margin-top:4px;">Achetez-le et soyez le premier à laisser un avis !</p>
+      </div>
+
+      <!-- Review cards -->
+      <div v-else style="display:flex;flex-direction:column;gap:12px;">
+        <div v-for="r in reviewData.reviews" :key="r.id"
+          class="card" style="padding:20px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(99,102,241,0.3),rgba(168,85,247,0.3));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#a5b4fc;flex-shrink:0;">
+                {{ r.user.charAt(0).toUpperCase() }}
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#e2e8f0;">{{ r.user }}</div>
+                <div style="font-size:11px;color:#334155;margin-top:1px;">{{ formatReviewDate(r.createdAt) }}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:2px;">
+              <span v-for="i in 5" :key="i" style="font-size:14px;">{{ i <= r.rating ? '⭐' : '☆' }}</span>
+            </div>
+          </div>
+          <p v-if="r.comment" style="color:#64748b;font-size:13px;line-height:1.6;margin:0;">{{ r.comment }}</p>
+          <p v-else style="color:#334155;font-size:13px;font-style:italic;margin:0;">Aucun commentaire.</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast -->
     <Transition name="slide">
       <div v-if="toast" style="position:fixed;bottom:24px;right:24px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;padding:14px 24px;border-radius:14px;font-weight:600;font-size:14px;box-shadow:0 8px 32px rgba(99,102,241,0.4);z-index:100;">
@@ -95,6 +145,14 @@ const cart = useCartStore()
 const product = ref(null)
 const loading = ref(true)
 const toast = ref('')
+
+// Reviews
+const reviewData = ref({ reviews: [], average: null, count: 0 })
+const reviewsLoading = ref(false)
+
+function formatReviewDate(d) {
+  return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
+}
 
 const features = [
   { icon: '⚡', label: 'Livraison rapide' },
@@ -122,11 +180,19 @@ onMounted(async () => {
   const res = await api.get(`/products/${route.params.slug}`).catch(() => null)
   product.value = res?.data || null
   loading.value = false
+
+  if (product.value) {
+    reviewsLoading.value = true
+    const rr = await api.get(`/products/${route.params.slug}/reviews`).catch(() => ({ data: { reviews: [], average: null, count: 0 } }))
+    reviewData.value = rr.data
+    reviewsLoading.value = false
+  }
 })
 </script>
 
 <style scoped>
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin  { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:.2} }
 .slide-enter-active, .slide-leave-active { transition: all .3s ease; }
 .slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(20px); }
 </style>

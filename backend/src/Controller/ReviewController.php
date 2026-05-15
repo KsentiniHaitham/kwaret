@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Review;
 use App\Repository\OrderRepository;
+use App\Repository\ProductRepository;
 use App\Repository\ReviewRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -78,5 +79,85 @@ class ReviewController extends AbstractController
             'rating'  => $review->getRating(),
             'comment' => $review->getComment(),
         ]);
+    }
+
+    // GET /api/products/{slug}/reviews — avis publics pour une fiche produit
+    #[Route('/products/{slug}/reviews', methods: ['GET'])]
+    public function byProduct(
+        string $slug,
+        ProductRepository $productRepo,
+        ReviewRepository $reviews
+    ): JsonResponse {
+        $product = $productRepo->findOneBy(['slug' => $slug]);
+        if (!$product) {
+            return $this->json([]);
+        }
+
+        // Get all reviews for orders containing this product
+        $qb = $reviews->createQueryBuilder('r')
+            ->join('r.order', 'o')
+            ->join('o.items', 'i')
+            ->join('i.product', 'p')
+            ->where('p.id = :pid')
+            ->setParameter('pid', $product->getId())
+            ->orderBy('r.createdAt', 'DESC')
+            ->setMaxResults(50);
+
+        $list = array_map(fn(Review $r) => [
+            'id'        => $r->getId(),
+            'rating'    => $r->getRating(),
+            'comment'   => $r->getComment(),
+            'user'      => $r->getUser()->getFirstName() . ' ' . mb_substr($r->getUser()->getLastName(), 0, 1) . '.',
+            'createdAt' => $r->getCreatedAt()?->format('c'),
+        ], $qb->getQuery()->getResult());
+
+        $avg = count($list) > 0
+            ? round(array_sum(array_column($list, 'rating')) / count($list), 1)
+            : null;
+
+        return $this->json(['reviews' => $list, 'average' => $avg, 'count' => count($list)]);
+    }
+
+    // GET /api/admin/reviews — all reviews (admin)
+    #[Route('/admin/reviews', methods: ['GET'])]
+    public function adminList(ReviewRepository $reviews): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $list = array_map(fn(Review $r) => [
+            'id'        => $r->getId(),
+            'rating'    => $r->getRating(),
+            'comment'   => $r->getComment(),
+            'user'      => [
+                'id'        => $r->getUser()->getId(),
+                'firstName' => $r->getUser()->getFirstName(),
+                'lastName'  => $r->getUser()->getLastName(),
+                'email'     => $r->getUser()->getEmail(),
+            ],
+            'order'     => ['id' => $r->getOrder()->getId()],
+            'products'  => array_map(
+                fn($item) => $item->getProduct()?->getName(),
+                $r->getOrder()->getItems()->toArray()
+            ),
+            'createdAt' => $r->getCreatedAt()?->format('c'),
+        ], $reviews->findBy([], ['createdAt' => 'DESC']));
+
+        $avg = count($list) > 0
+            ? round(array_sum(array_column($list, 'rating')) / count($list), 1)
+            : null;
+
+        return $this->json(['reviews' => $list, 'average' => $avg, 'count' => count($list)]);
+    }
+
+    // DELETE /api/admin/reviews/{id}
+    #[Route('/admin/reviews/{id}', methods: ['DELETE'])]
+    public function adminDelete(int $id, ReviewRepository $reviews, EntityManagerInterface $em): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $review = $reviews->find($id);
+        if (!$review) return $this->json(['message' => 'Introuvable'], 404);
+        $em->remove($review);
+        $em->flush();
+        return $this->json(['ok' => true]);
     }
 }

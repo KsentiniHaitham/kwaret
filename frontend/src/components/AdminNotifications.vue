@@ -66,8 +66,11 @@
                   <div style="font-size:11px;color:#334155;margin-top:4px;">{{ timeAgo(n.createdAt) }}</div>
                 </div>
 
-                <!-- Unread dot -->
-                <div v-if="!n.isRead" style="width:7px;height:7px;border-radius:50%;background:#6366f1;flex-shrink:0;margin-top:5px;"></div>
+                <!-- Redirect arrow + unread dot -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+                  <span v-if="NOTIF_ROUTES[n.type]" style="font-size:10px;color:#334155;">→</span>
+                  <div v-if="!n.isRead" style="width:7px;height:7px;border-radius:50%;background:#6366f1;"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -79,7 +82,10 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/api'
+
+const router = useRouter()
 
 const open          = ref(false)
 const loading       = ref(true)
@@ -115,13 +121,28 @@ async function fetch() {
   loading.value = false
 }
 
+const NOTIF_ROUTES = {
+  new_order:    '/admin/orders',
+  out_of_stock: '/admin/products',
+  new_recharge: '/admin/recharges',
+  new_ticket:   '/admin/tickets',
+}
+
 async function markRead(n) {
-  if (n.isRead) return
-  try {
-    await api.patch(`/admin/notifications/${n.id}/read`)
-    n.isRead = true
-    unread.value = Math.max(0, unread.value - 1)
-  } catch {}
+  // Mark as read
+  if (!n.isRead) {
+    try {
+      await api.patch(`/admin/notifications/${n.id}/read`)
+      n.isRead = true
+      unread.value = Math.max(0, unread.value - 1)
+    } catch {}
+  }
+  // Redirect to relevant page
+  const dest = NOTIF_ROUTES[n.type]
+  if (dest) {
+    open.value = false
+    router.push(dest)
+  }
 }
 
 async function readAll() {

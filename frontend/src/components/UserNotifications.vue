@@ -75,7 +75,10 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/api'
+
+const router = useRouter()
 
 const open          = ref(false)
 const loading       = ref(true)
@@ -116,13 +119,25 @@ async function fetch() {
   loading.value = false
 }
 
+const NOTIF_ROUTES = {
+  order_status:      '/orders',
+  recharge_approved: '/wallet',
+  recharge_rejected: '/wallet',
+}
+
 async function markRead(n) {
-  if (n.isRead) return
-  try {
-    await api.patch(`/my/notifications/${n.id}/read`)
-    n.isRead = true
-    unread.value = Math.max(0, unread.value - 1)
-  } catch {}
+  if (!n.isRead) {
+    try {
+      await api.patch(`/my/notifications/${n.id}/read`)
+      n.isRead = true
+      unread.value = Math.max(0, unread.value - 1)
+    } catch {}
+  }
+  const dest = NOTIF_ROUTES[n.type]
+  if (dest) {
+    open.value = false
+    router.push(dest)
+  }
 }
 
 async function readAll() {
