@@ -5,8 +5,8 @@
         <RouterLink to="/" style="text-decoration:none;">
           <span class="gradient-text" style="font-size:28px;font-weight:800;">✦ Kwaret</span>
         </RouterLink>
-        <h2 style="font-size:26px;font-weight:800;color:#e2e8f0;margin-top:20px;letter-spacing:-.5px;">Créer un compte</h2>
-        <p style="color:#475569;margin-top:6px;font-size:14px;">Rejoignez 2000+ clients satisfaits</p>
+        <h2 style="font-size:26px;font-weight:800;color:#e2e8f0;margin-top:20px;letter-spacing:-.5px;">{{ $t('auth.register.title') }}</h2>
+        <p style="color:#475569;margin-top:6px;font-size:14px;">{{ $t('auth.register.sub') }}</p>
       </div>
 
       <div class="card" style="padding:36px;">
@@ -26,7 +26,7 @@
         <!-- Divider -->
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
           <div style="flex:1;height:1px;background:rgba(255,255,255,0.07);"></div>
-          <span style="color:#334155;font-size:12px;font-weight:600;">OU</span>
+          <span style="color:#334155;font-size:12px;font-weight:600;">{{ $t('common.or') }}</span>
           <div style="flex:1;height:1px;background:rgba(255,255,255,0.07);"></div>
         </div>
 
@@ -34,24 +34,24 @@
         <form @submit.prevent="register" style="display:flex;flex-direction:column;gap:18px;">
           <div class="auth-name-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
-              <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Prénom</label>
-              <input v-model="form.firstName" type="text" required placeholder="Prénom" class="form-input"/>
+              <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">{{ $t('auth.firstname') }}</label>
+              <input v-model="form.firstName" type="text" required :placeholder="$t('auth.firstname')" class="form-input"/>
             </div>
             <div>
-              <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Nom</label>
-              <input v-model="form.lastName" type="text" required placeholder="Nom" class="form-input"/>
+              <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">{{ $t('auth.lastname') }}</label>
+              <input v-model="form.lastName" type="text" required :placeholder="$t('auth.lastname')" class="form-input"/>
             </div>
           </div>
           <div>
-            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Email</label>
+            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">{{ $t('auth.email') }}</label>
             <input v-model="form.email" type="email" required placeholder="votre@email.com" class="form-input"/>
           </div>
           <div>
-            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Téléphone (optionnel)</label>
+            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">{{ $t('auth.phone') }}</label>
             <input v-model="form.phone" type="tel" placeholder="+216 XX XXX XXX" class="form-input"/>
           </div>
           <div>
-            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Mot de passe</label>
+            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">{{ $t('auth.password') }}</label>
             <input v-model="form.password" type="password" required placeholder="8 caractères minimum" class="form-input"/>
           </div>
 
@@ -61,13 +61,13 @@
 
           <button type="submit" :disabled="loading" class="btn-primary" style="width:100%;padding:14px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;margin-top:4px;">
             <span v-if="loading" style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block;"></span>
-            {{ loading ? 'Création...' : 'Créer mon compte →' }}
+            {{ loading ? $t('auth.register.loading') : $t('auth.register.btn') }}
           </button>
         </form>
 
         <p style="margin-top:24px;text-align:center;color:#475569;font-size:13px;">
-          Déjà un compte ?
-          <RouterLink to="/login" style="color:#818cf8;text-decoration:none;font-weight:600;">Se connecter</RouterLink>
+          {{ $t('auth.register.has_account') }}
+          <RouterLink to="/login" style="color:#818cf8;text-decoration:none;font-weight:600;">{{ $t('nav.login') }}</RouterLink>
         </p>
       </div>
     </div>

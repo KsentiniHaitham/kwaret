@@ -7,19 +7,19 @@
         <div>
           <div class="pill" style="margin-bottom:28px;">
             <span style="width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);display:inline-block;"></span>
-            Livraison instantanée · Garantie 24/7
+            {{ $t('home.hero.badge') }}
           </div>
           <h1 style="font-size:58px;font-weight:800;line-height:1.1;letter-spacing:-2px;margin-bottom:20px;">
-            Le meilleur du<br>
-            <span class="gradient-text">numérique</span><br>
-            à portée de main
+            {{ $t('home.hero.title1') }}<br>
+            <span class="gradient-text">{{ $t('home.hero.title2') }}</span><br>
+            {{ $t('home.hero.title3') }}
           </h1>
           <p style="color:#64748b;font-size:17px;line-height:1.7;margin-bottom:36px;max-width:440px;">
-            Gaming, streaming, intelligence artificielle — des produits premium livrés en moins d'une heure.
+            {{ $t('home.hero.sub') }}
           </p>
           <div style="display:flex;gap:12px;margin-bottom:48px;flex-wrap:wrap;">
-            <RouterLink to="/shop" class="btn-primary" style="text-decoration:none;">Explorer la boutique →</RouterLink>
-            <RouterLink v-if="!auth.isLoggedIn" to="/register" class="btn-ghost" style="text-decoration:none;">Créer un compte</RouterLink>
+            <RouterLink to="/shop" class="btn-primary" style="text-decoration:none;">{{ $t('home.hero.btn_shop') }}</RouterLink>
+            <RouterLink v-if="!auth.isLoggedIn" to="/register" class="btn-ghost" style="text-decoration:none;">{{ $t('home.hero.btn_account') }}</RouterLink>
           </div>
           <div style="display:flex;gap:40px;">
             <div v-for="s in stats" :key="s.label">
@@ -51,8 +51,8 @@
     <!-- Categories -->
     <section style="padding-bottom:80px;">
       <div style="margin-bottom:40px;">
-        <div style="display:inline-block;background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.2);color:#818cf8;font-size:11px;font-weight:700;padding:5px 14px;border-radius:100px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Catalogue</div>
-        <h2 style="font-size:38px;font-weight:800;letter-spacing:-1px;">Nos <span class="gradient-text">catégories</span></h2>
+        <div style="display:inline-block;background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.2);color:#818cf8;font-size:11px;font-weight:700;padding:5px 14px;border-radius:100px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">{{ $t('home.categories') }}</div>
+        <h2 style="font-size:38px;font-weight:800;letter-spacing:-1px;"><span class="gradient-text">{{ $t('home.categories') }}</span></h2>
       </div>
       <div class="cat-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
         <RouterLink
@@ -72,10 +72,10 @@
     <section style="padding-bottom:80px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;">
         <div>
-          <div style="display:inline-block;background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.2);color:#818cf8;font-size:11px;font-weight:700;padding:5px 14px;border-radius:100px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Top ventes</div>
-          <h2 style="font-size:38px;font-weight:800;letter-spacing:-1px;">Produits <span class="gradient-text">populaires</span></h2>
+          <div style="display:inline-block;background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.2);color:#818cf8;font-size:11px;font-weight:700;padding:5px 14px;border-radius:100px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">{{ $t('home.top_products') }}</div>
+          <h2 style="font-size:38px;font-weight:800;letter-spacing:-1px;"><span class="gradient-text">{{ $t('home.top_products') }}</span></h2>
         </div>
-        <RouterLink to="/shop" style="color:#818cf8;text-decoration:none;font-size:14px;">Voir tout →</RouterLink>
+        <RouterLink to="/shop" style="color:#818cf8;text-decoration:none;font-size:14px;">{{ $t('home.see_all') }}</RouterLink>
       </div>
       <div v-if="loadingFeatured" style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
         <div v-for="n in 4" :key="n" style="height:280px;border-radius:20px;background:rgba(255,255,255,0.03);"></div>

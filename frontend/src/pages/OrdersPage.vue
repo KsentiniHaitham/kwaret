@@ -1,7 +1,7 @@
 <template>
   <div style="max-width:800px;margin:0 auto;padding:40px 20px 80px;">
     <div style="margin-bottom:36px;">
-      <h1 style="font-size:36px;font-weight:800;letter-spacing:-1px;">Mes <span class="gradient-text">commandes</span></h1>
+      <h1 style="font-size:36px;font-weight:800;letter-spacing:-1px;">{{ $t('orders.title') }} <span class="gradient-text">{{ $t('orders.title2') }}</span></h1>
     </div>
 
     <!-- Loading -->
@@ -12,8 +12,8 @@
     <!-- Empty -->
     <div v-else-if="orders.length === 0" style="text-align:center;padding:80px 0;">
       <div style="font-size:64px;margin-bottom:20px;">📦</div>
-      <p style="color:#475569;font-size:16px;margin-bottom:28px;">Vous n'avez pas encore de commande</p>
-      <RouterLink to="/shop" class="btn-primary" style="text-decoration:none;padding:12px 28px;">Commander maintenant →</RouterLink>
+      <p style="color:#475569;font-size:16px;margin-bottom:28px;">{{ $t('orders.empty') }}</p>
+      <RouterLink to="/shop" class="btn-primary" style="text-decoration:none;padding:12px 28px;">{{ $t('orders.empty.btn') }}</RouterLink>
     </div>
 
     <!-- List -->
@@ -40,7 +40,7 @@
 
         <!-- Total -->
         <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-          <span style="color:#475569;font-size:13px;">Total commande</span>
+          <span style="color:#475569;font-size:13px;">{{ $t('orders.total') }}</span>
           <span class="gradient-text-cyan" style="font-size:20px;font-weight:800;">{{ parseFloat(order.total).toFixed(2) }} TND</span>
         </div>
 
@@ -51,17 +51,17 @@
             <div style="display:flex;gap:3px;">
               <span v-for="i in 5" :key="i" style="font-size:16px;">{{ i <= reviews[order.id].rating ? '⭐' : '☆' }}</span>
             </div>
-            <span style="color:#475569;font-size:13px;">Votre avis a été soumis</span>
+            <span style="color:#475569;font-size:13px;">{{ $t('orders.review.done') }}</span>
           </div>
           <!-- Review form -->
           <div v-else>
             <div v-if="!showReview[order.id]">
               <button @click="showReview[order.id] = true" style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">
-                ⭐ Laisser un avis
+                {{ $t('orders.review.btn') }}
               </button>
             </div>
             <div v-else>
-              <p style="color:#94a3b8;font-size:13px;margin-bottom:10px;">Évaluez votre commande :</p>
+              <p style="color:#94a3b8;font-size:13px;margin-bottom:10px;">{{ $t('orders.review.rate') }}</p>
               <!-- Stars -->
               <div style="display:flex;gap:6px;margin-bottom:12px;">
                 <button
@@ -75,7 +75,7 @@
               <!-- Comment -->
               <textarea
                 v-model="pendingComment[order.id]"
-                placeholder="Commentaire optionnel..."
+                :placeholder="$t('orders.review.ph')"
                 style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;color:#e2e8f0;font-size:13px;resize:vertical;min-height:70px;outline:none;box-sizing:border-box;font-family:inherit;"
               ></textarea>
               <div style="display:flex;gap:8px;margin-top:10px;">
@@ -84,8 +84,8 @@
                   :disabled="!pendingRating[order.id] || submitting[order.id]"
                   class="btn-primary"
                   style="padding:8px 20px;font-size:13px;border:none;"
-                >{{ submitting[order.id] ? 'Envoi...' : 'Envoyer' }}</button>
-                <button @click="showReview[order.id] = false" style="background:none;border:1px solid rgba(255,255,255,0.1);color:#475569;padding:8px 16px;border-radius:10px;font-size:13px;cursor:pointer;">Annuler</button>
+                >{{ submitting[order.id] ? $t('orders.review.sending') : $t('orders.review.send') }}</button>
+                <button @click="showReview[order.id] = false" style="background:none;border:1px solid rgba(255,255,255,0.1);color:#475569;padding:8px 16px;border-radius:10px;font-size:13px;cursor:pointer;">{{ $t('orders.review.cancel') }}</button>
               </div>
             </div>
           </div>

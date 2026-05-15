@@ -5,8 +5,8 @@
         <RouterLink to="/" style="text-decoration:none;">
           <span class="gradient-text" style="font-size:28px;font-weight:800;">✦ Kwaret</span>
         </RouterLink>
-        <h2 style="font-size:26px;font-weight:800;color:#e2e8f0;margin-top:20px;letter-spacing:-.5px;">Connexion</h2>
-        <p style="color:#475569;margin-top:6px;font-size:14px;">Accédez à votre espace client</p>
+        <h2 style="font-size:26px;font-weight:800;color:#e2e8f0;margin-top:20px;letter-spacing:-.5px;">{{ $t('auth.login.title') }}</h2>
+        <p style="color:#475569;margin-top:6px;font-size:14px;">{{ $t('auth.login.sub') }}</p>
       </div>
 
       <div class="card" style="padding:36px;">
@@ -26,19 +26,19 @@
         <!-- Divider -->
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
           <div style="flex:1;height:1px;background:rgba(255,255,255,0.07);"></div>
-          <span style="color:#334155;font-size:12px;font-weight:600;">OU</span>
+          <span style="color:#334155;font-size:12px;font-weight:600;">{{ $t('common.or') }}</span>
           <div style="flex:1;height:1px;background:rgba(255,255,255,0.07);"></div>
         </div>
 
         <!-- Formulaire email -->
         <form @submit.prevent="login" style="display:flex;flex-direction:column;gap:20px;">
           <div>
-            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Adresse email</label>
-            <input v-model="form.email" type="email" required placeholder="votre@email.com" class="form-input"/>
+            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">{{ $t('auth.email') }}</label>
+            <input v-model="form.email" type="email" required :placeholder="$t('auth.email.ph')" class="form-input"/>
           </div>
           <div>
-            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Mot de passe</label>
-            <input v-model="form.password" type="password" required placeholder="••••••••" class="form-input"/>
+            <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">{{ $t('auth.password') }}</label>
+            <input v-model="form.password" type="password" required :placeholder="$t('auth.password.ph')" class="form-input"/>
           </div>
 
           <div v-if="error" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-size:13px;padding:12px 16px;border-radius:12px;">
@@ -47,16 +47,16 @@
 
           <button type="submit" :disabled="loading" class="btn-primary" style="width:100%;padding:14px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;">
             <span v-if="loading" style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block;"></span>
-            {{ loading ? 'Connexion...' : 'Se connecter →' }}
+            {{ loading ? $t('auth.login.loading') : $t('auth.login.btn') }}
           </button>
         </form>
 
         <p style="margin-top:16px;text-align:center;">
-          <RouterLink to="/forgot-password" style="color:#64748b;text-decoration:none;font-size:12px;font-weight:500;">Mot de passe oublié ?</RouterLink>
+          <RouterLink to="/forgot-password" style="color:#64748b;text-decoration:none;font-size:12px;font-weight:500;">{{ $t('auth.forgot') }}</RouterLink>
         </p>
         <p style="margin-top:12px;text-align:center;color:#475569;font-size:13px;">
-          Pas encore de compte ?
-          <RouterLink to="/register" style="color:#818cf8;text-decoration:none;font-weight:600;">Créer un compte</RouterLink>
+          {{ $t('auth.login.no_account') }}
+          <RouterLink to="/register" style="color:#818cf8;text-decoration:none;font-weight:600;">{{ $t('auth.login.create') }}</RouterLink>
         </p>
       </div>
     </div>

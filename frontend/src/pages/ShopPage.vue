@@ -1,8 +1,8 @@
 <template>
   <div style="max-width:1200px;margin:0 auto;padding:32px 32px 80px;">
     <div style="margin-bottom:40px;">
-      <div style="display:inline-block;background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.2);color:#818cf8;font-size:11px;font-weight:700;padding:5px 14px;border-radius:100px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Catalogue</div>
-      <h1 style="font-size:42px;font-weight:800;letter-spacing:-1.5px;">Notre <span class="gradient-text">boutique</span></h1>
+      <div style="display:inline-block;background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.2);color:#818cf8;font-size:11px;font-weight:700;padding:5px 14px;border-radius:100px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">{{ $t('shop.title') }}</div>
+      <h1 style="font-size:42px;font-weight:800;letter-spacing:-1.5px;"><span class="gradient-text">{{ $t('shop.title') }}</span></h1>
     </div>
 
     <div class="shop-layout" style="display:flex;gap:28px;align-items:flex-start;">
@@ -16,7 +16,7 @@
               :style="activeCategory === null ? 'background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(168,85,247,0.2));border:1px solid rgba(129,140,248,0.3);color:#a5b4fc;' : 'background:transparent;border:1px solid transparent;color:#475569;'"
               style="width:100%;text-align:left;padding:9px 12px;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;"
             >
-              Tous les produits
+              {{ $t('shop.all') }}
             </button>
             <button
               v-for="cat in categories"
@@ -41,7 +41,7 @@
               ref="searchInput"
               v-model="search"
               type="text"
-              placeholder="Rechercher un produit..."
+              :placeholder="$t('shop.search')"
               style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px 16px 13px 42px;color:#e2e8f0;font-size:14px;outline:none;box-sizing:border-box;transition:border .2s;"
               :style="dropdownOpen ? 'border-color:rgba(129,140,248,0.5);border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent;' : ''"
               @focus="onSearchFocus"

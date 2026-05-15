@@ -9,9 +9,9 @@
 
       <!-- Nav links — hidden on mobile -->
       <div class="nav-links">
-        <RouterLink to="/" class="nav-a">Accueil</RouterLink>
-        <RouterLink to="/shop" class="nav-a">Boutique</RouterLink>
-        <RouterLink v-if="isAdmin" to="/admin" class="nav-a" style="color:#a5b4fc;">📊 Admin</RouterLink>
+        <RouterLink to="/" class="nav-a">{{ $t('nav.home') }}</RouterLink>
+        <RouterLink to="/shop" class="nav-a">{{ $t('nav.shop') }}</RouterLink>
+        <RouterLink v-if="isAdmin" to="/admin" class="nav-a" style="color:#a5b4fc;">📊 {{ $t('nav.admin') }}</RouterLink>
       </div>
 
       <!-- Search bar — hidden on mobile -->
@@ -26,25 +26,25 @@
           <span v-if="cart.count > 0" style="position:absolute;top:-2px;right:-2px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;font-size:10px;font-weight:700;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;">{{ cart.count }}</span>
         </RouterLink>
         <template v-if="auth.isLoggedIn">
-          <RouterLink to="/orders" class="nav-a">Commandes</RouterLink>
-          <RouterLink to="/support" class="nav-a">Support</RouterLink>
+          <RouterLink to="/orders" class="nav-a">{{ $t('nav.orders') }}</RouterLink>
+          <RouterLink to="/support" class="nav-a">{{ $t('nav.support') }}</RouterLink>
           <UserNotifications />
           <RouterLink to="/wallet" class="nav-a wallet-link">
-            <span style="font-size:11px;font-weight:700;color:#818cf8;display:block;line-height:1;">SOLDE</span>
+            <span style="font-size:11px;font-weight:700;color:#818cf8;display:block;line-height:1;">{{ $t('nav.balance') }}</span>
             <span style="font-size:13px;font-weight:800;color:#e2e8f0;">{{ balance.toFixed(2) }} TND</span>
           </RouterLink>
-          <button @click="auth.logout(); $router.push('/')" class="btn-ghost" style="padding:7px 14px;font-size:13px;">Déconnexion</button>
+          <button @click="auth.logout(); $router.push('/')" class="btn-ghost" style="padding:7px 14px;font-size:13px;">{{ $t('nav.logout') }}</button>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="nav-a">Connexion</RouterLink>
-          <RouterLink to="/register" class="btn-primary" style="padding:8px 16px;font-size:13px;text-decoration:none;">S'inscrire</RouterLink>
+          <RouterLink to="/login" class="nav-a">{{ $t('nav.login') }}</RouterLink>
+          <RouterLink to="/register" class="btn-primary" style="padding:8px 16px;font-size:13px;text-decoration:none;">{{ $t('nav.register') }}</RouterLink>
         </template>
         <!-- Language toggle -->
         <button @click="lang.toggle()"
           style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 10px;color:#94a3b8;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:all .2s;"
           onmouseover="this.style.borderColor='rgba(129,140,248,0.4)';this.style.color='#818cf8'"
           onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='#94a3b8'">
-          {{ lang.lang === 'fr' ? 'AR عربي' : 'FR' }}
+          {{ $t('nav.lang_switch') }}
         </button>
       </div>
 
@@ -69,24 +69,23 @@
     <!-- Mobile menu overlay -->
     <Transition name="slide-down">
       <div v-if="menuOpen" class="mobile-menu">
-        <RouterLink to="/" class="mobile-link" @click="menuOpen=false">🏠 Accueil</RouterLink>
-        <RouterLink to="/shop" class="mobile-link" @click="menuOpen=false">🛍️ Boutique</RouterLink>
+        <RouterLink to="/" class="mobile-link" @click="menuOpen=false">🏠 {{ $t('nav.home') }}</RouterLink>
+        <RouterLink to="/shop" class="mobile-link" @click="menuOpen=false">🛍️ {{ $t('nav.shop') }}</RouterLink>
         <template v-if="auth.isLoggedIn">
-          <RouterLink to="/orders" class="mobile-link" @click="menuOpen=false">📦 Commandes</RouterLink>
-          <RouterLink to="/support" class="mobile-link" @click="menuOpen=false">🎫 Support</RouterLink>
+          <RouterLink to="/orders" class="mobile-link" @click="menuOpen=false">📦 {{ $t('nav.orders') }}</RouterLink>
+          <RouterLink to="/support" class="mobile-link" @click="menuOpen=false">🎫 {{ $t('nav.support') }}</RouterLink>
           <RouterLink to="/wallet" class="mobile-link" @click="menuOpen=false">
-            💳 Wallet — <span style="color:#818cf8;font-weight:700;">{{ balance.toFixed(2) }} TND</span>
+            💳 {{ $t('nav.wallet') }} — <span style="color:#818cf8;font-weight:700;">{{ balance.toFixed(2) }} TND</span>
           </RouterLink>
-          <RouterLink v-if="isAdmin" to="/admin" class="mobile-link" style="color:#a5b4fc;" @click="menuOpen=false">📊 Admin</RouterLink>
-          <button @click="auth.logout(); $router.push('/'); menuOpen=false" class="mobile-link" style="background:none;border:none;cursor:pointer;color:#f87171;text-align:left;width:100%;">🚪 Déconnexion</button>
+          <RouterLink v-if="isAdmin" to="/admin" class="mobile-link" style="color:#a5b4fc;" @click="menuOpen=false">📊 {{ $t('nav.admin') }}</RouterLink>
+          <button @click="auth.logout(); $router.push('/'); menuOpen=false" class="mobile-link" style="background:none;border:none;cursor:pointer;color:#f87171;text-align:left;width:100%;">🚪 {{ $t('nav.logout') }}</button>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="mobile-link" @click="menuOpen=false">🔑 Connexion</RouterLink>
-          <RouterLink to="/register" class="mobile-link" style="color:#818cf8;font-weight:700;" @click="menuOpen=false">✨ S'inscrire</RouterLink>
+          <RouterLink to="/login" class="mobile-link" @click="menuOpen=false">🔑 {{ $t('nav.login') }}</RouterLink>
+          <RouterLink to="/register" class="mobile-link" style="color:#818cf8;font-weight:700;" @click="menuOpen=false">✨ {{ $t('nav.register') }}</RouterLink>
         </template>
-        <!-- Language toggle in mobile menu -->
         <button @click="lang.toggle(); menuOpen=false" class="mobile-link" style="background:none;border:none;cursor:pointer;text-align:left;width:100%;color:#94a3b8;">
-          🌐 {{ lang.lang === 'fr' ? 'Passer en Arabe (عربي)' : 'Passer en Français (FR)' }}
+          🌐 {{ $t('nav.lang_switch_full') }}
         </button>
       </div>
     </Transition>

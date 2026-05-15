@@ -2,31 +2,31 @@
   <div style="max-width:760px;margin:0 auto;padding:40px 32px 80px;">
     <!-- Header -->
     <div style="margin-bottom:36px;">
-      <h1 style="font-size:38px;font-weight:800;letter-spacing:-1px;">Mon <span class="gradient-text">portefeuille</span></h1>
+      <h1 style="font-size:38px;font-weight:800;letter-spacing:-1px;">{{ $t('wallet.title') }} <span class="gradient-text">{{ $t('wallet.title2') }}</span></h1>
     </div>
 
     <!-- Balance card -->
     <div style="background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(168,85,247,0.12));border:1px solid rgba(129,140,248,0.3);border-radius:24px;padding:32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div style="font-size:12px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Solde disponible</div>
+        <div style="font-size:12px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">{{ $t('wallet.balance') }}</div>
         <div class="gradient-text-cyan" style="font-size:48px;font-weight:800;letter-spacing:-1px;">{{ balance.toFixed(2) }} <span style="font-size:24px;">TND</span></div>
-        <div style="font-size:13px;color:#475569;margin-top:8px;">Utilisable immédiatement pour vos achats</div>
+        <div style="font-size:13px;color:#475569;margin-top:8px;">{{ $t('wallet.balance.sub') }}</div>
       </div>
       <button @click="showRecharge=true" class="btn-primary" style="border:none;cursor:pointer;padding:14px 24px;font-size:14px;flex-shrink:0;">
-        + Recharger
+        {{ $t('wallet.recharge') }}
       </button>
     </div>
 
     <!-- History -->
     <div class="card" style="padding:28px;">
-      <div style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">Historique des recharges</div>
+      <div style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">{{ $t('wallet.history') }}</div>
 
       <div v-if="loading" style="display:flex;flex-direction:column;gap:8px;">
         <div v-for="n in 3" :key="n" style="height:52px;border-radius:10px;background:rgba(255,255,255,0.03);animation:pulse 1.5s infinite;"></div>
       </div>
 
       <div v-else-if="history.length===0" style="text-align:center;padding:32px;color:#334155;font-size:14px;">
-        Aucune recharge pour l'instant
+        {{ $t('wallet.empty') }}
       </div>
 
       <div v-else style="display:flex;flex-direction:column;gap:8px;">
@@ -55,18 +55,18 @@
 
     <!-- Gift Cards section -->
     <div class="card" style="padding:28px;margin-top:20px;">
-      <div style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">🎁 Cartes cadeaux</div>
+      <div style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">{{ $t('wallet.gift.title') }}</div>
 
       <!-- Redeem a gift card -->
       <div style="margin-bottom:24px;">
-        <div style="font-size:14px;font-weight:600;color:#94a3b8;margin-bottom:10px;">Utiliser un code cadeau</div>
+        <div style="font-size:14px;font-weight:600;color:#94a3b8;margin-bottom:10px;">{{ $t('wallet.gift.redeem') }}</div>
         <div style="display:flex;gap:10px;align-items:center;">
-          <input v-model="redeemCode" type="text" placeholder="KWARET-XXXX-XXXX"
+          <input v-model="redeemCode" type="text" :placeholder="$t('wallet.gift.redeem.ph')"
             style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 14px;color:#e2e8f0;font-size:14px;outline:none;transition:border .2s;text-transform:uppercase;font-family:monospace;"
             onfocus="this.style.borderColor='rgba(129,140,248,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
           <button @click="redeemCard" :disabled="!redeemCode.trim() || redeeming"
             class="btn-primary" style="padding:10px 20px;font-size:13px;border:none;cursor:pointer;white-space:nowrap;">
-            {{ redeeming ? '…' : 'Utiliser' }}
+            {{ redeeming ? '…' : $t('wallet.gift.redeem.btn') }}
           </button>
         </div>
         <div v-if="redeemError" style="margin-top:8px;font-size:12px;color:#f87171;">{{ redeemError }}</div>
@@ -75,7 +75,7 @@
 
       <!-- Buy a gift card -->
       <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;">
-        <div style="font-size:14px;font-weight:600;color:#94a3b8;margin-bottom:14px;">Acheter une carte cadeau</div>
+        <div style="font-size:14px;font-weight:600;color:#94a3b8;margin-bottom:14px;">{{ $t('wallet.gift.buy') }}</div>
         <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
           <button v-for="amt in [10, 20, 50, 100, 200]" :key="amt"
             @click="buyAmount = amt"
@@ -86,33 +86,33 @@
           </button>
         </div>
         <div v-if="buyAmount" style="margin-bottom:12px;font-size:13px;color:#64748b;">
-          Coût : <strong style="color:#e2e8f0;">{{ buyAmount }} TND</strong> déduits de votre portefeuille → vous recevrez un code cadeau à partager.
+          Coût : <strong style="color:#e2e8f0;">{{ buyAmount }} TND</strong> {{ $t('wallet.gift.buy.sub') }}
         </div>
         <div v-if="buyError" style="margin-bottom:8px;font-size:12px;color:#f87171;">{{ buyError }}</div>
         <div v-if="newCard" style="margin-bottom:12px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:12px;padding:14px 18px;">
-          <div style="font-size:12px;color:#34d399;font-weight:700;margin-bottom:6px;">✅ Carte cadeau créée !</div>
+          <div style="font-size:12px;color:#34d399;font-weight:700;margin-bottom:6px;">{{ $t('wallet.gift.created') }}</div>
           <div style="font-family:monospace;font-size:18px;font-weight:800;color:#e2e8f0;letter-spacing:2px;">{{ newCard.code }}</div>
           <div style="font-size:12px;color:#64748b;margin-top:4px;">Valeur : {{ newCard.initialValue }} TND</div>
         </div>
         <button @click="buyCard" :disabled="!buyAmount || buying"
           class="btn-primary" style="padding:10px 24px;font-size:13px;border:none;cursor:pointer;"
           :style="!buyAmount ? 'opacity:.4;cursor:not-allowed;' : ''">
-          {{ buying ? 'Achat...' : `Acheter ${buyAmount ? buyAmount + ' TND' : ''}` }}
+          {{ buying ? '...' : `${$t('wallet.gift.buy.btn')} ${buyAmount ? buyAmount + ' TND' : ''}` }}
         </button>
       </div>
     </div>
 
     <!-- My gift cards list -->
     <div v-if="myCards.length > 0" class="card" style="padding:28px;margin-top:20px;">
-      <div style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Mes cartes cadeaux</div>
+      <div style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">{{ $t('wallet.gift.mycards') }}</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <div v-for="card in myCards" :key="card.id"
           style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:8px;">
           <span style="font-family:monospace;font-size:14px;font-weight:700;color:#a5b4fc;">{{ card.code }}</span>
           <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:13px;color:#64748b;">{{ card.initialValue }} TND</span>
-            <span v-if="card.isRedeemed" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(71,85,105,0.2);color:#475569;border:1px solid rgba(71,85,105,0.3);">Utilisée</span>
-            <span v-else style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);">Disponible</span>
+            <span v-if="card.isRedeemed" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(71,85,105,0.2);color:#475569;border:1px solid rgba(71,85,105,0.3);">{{ $t('wallet.gift.used') }}</span>
+            <span v-else style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);">{{ $t('wallet.gift.available') }}</span>
           </div>
         </div>
       </div>

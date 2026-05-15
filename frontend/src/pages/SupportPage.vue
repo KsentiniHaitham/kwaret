@@ -4,9 +4,9 @@
     <!-- ── Sidebar liste tickets ── -->
     <div style="width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;">
       <h2 style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px;">
-        💬 <span class="gradient-text">Support</span>
+        💬 <span class="gradient-text">{{ $t('support.title') }}</span>
       </h2>
-      <p style="font-size:12px;color:#475569;margin-bottom:12px;">Vos conversations avec l'équipe</p>
+      <p style="font-size:12px;color:#475569;margin-bottom:12px;">{{ $t('support.sub') }}</p>
 
       <div v-if="loadingTickets" style="display:flex;flex-direction:column;gap:8px;">
         <div v-for="n in 3" :key="n" style="height:72px;border-radius:14px;background:rgba(255,255,255,0.03);animation:pulse 1.5s infinite;"></div>
@@ -14,7 +14,7 @@
 
       <div v-else-if="tickets.length===0" style="text-align:center;padding:32px 16px;color:#334155;font-size:13px;">
         <div style="font-size:32px;margin-bottom:10px;">🔕</div>
-        Aucune conversation pour l'instant
+        {{ $t('support.empty') }}
       </div>
 
       <div v-else style="display:flex;flex-direction:column;gap:6px;overflow-y:auto;flex:1;">
@@ -38,7 +38,7 @@
               :style="t.status==='open'
                 ? 'background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);'
                 : 'background:rgba(71,85,105,0.2);color:#475569;border:1px solid rgba(71,85,105,0.3);'">
-              {{ t.status==='open' ? '● Ouvert' : '✓ Fermé' }}
+              {{ t.status==='open' ? $t('support.open') : $t('support.closed') }}
             </span>
             <span style="font-size:10px;color:#334155;">{{ timeAgo(t.createdAt) }}</span>
           </div>
@@ -55,8 +55,8 @@
       <!-- Pas de ticket sélectionné -->
       <div v-if="!activeTicket" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#334155;">
         <div style="font-size:48px;margin-bottom:16px;">💬</div>
-        <div style="font-size:15px;font-weight:600;">Sélectionnez une conversation</div>
-        <div style="font-size:13px;margin-top:6px;color:#334155;">Ou attendez qu'un ticket soit créé automatiquement</div>
+        <div style="font-size:15px;font-weight:600;">{{ $t('support.select') }}</div>
+        <div style="font-size:13px;margin-top:6px;color:#334155;">{{ $t('support.select.sub') }}</div>
       </div>
 
       <template v-else>
@@ -65,14 +65,14 @@
           <div>
             <div style="font-size:14px;font-weight:700;color:#e2e8f0;">{{ activeTicket.subject }}</div>
             <div style="font-size:11px;margin-top:2px;" :style="activeTicket.status==='open' ? 'color:#34d399;' : 'color:#475569;'">
-              {{ activeTicket.status==='open' ? '● En ligne — Support Kwaret' : '✓ Conversation fermée' }}
+              {{ activeTicket.status==='open' ? $t('support.online') : $t('support.closed_msg') }}
             </div>
           </div>
           <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;"
             :style="activeTicket.status==='open'
               ? 'background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);'
               : 'background:rgba(71,85,105,0.2);color:#475569;border:1px solid rgba(71,85,105,0.3);'">
-            {{ activeTicket.status==='open' ? 'Ouvert' : 'Fermé' }}
+            {{ activeTicket.status==='open' ? $t('support.open') : $t('support.closed') }}
           </span>
         </div>
 
@@ -118,7 +118,7 @@
         <div v-if="activeTicket.status==='closed' && !activeTicket.rating"
           style="padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(99,102,241,0.05);">
           <div style="font-size:13px;font-weight:600;color:#94a3b8;margin-bottom:10px;text-align:center;">
-            🔒 {{ activeTicket.type === 'order' ? 'Ticket fermé automatiquement — commande traitée.' : 'La discussion est fermée.' }} Notez votre expérience :
+            🔒 {{ $t('support.rate') }}
           </div>
           <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;">
             <span v-for="s in 5" :key="s"
@@ -138,7 +138,7 @@
         <!-- Already rated -->
         <div v-else-if="activeTicket.status==='closed' && activeTicket.rating"
           style="padding:14px 20px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;font-size:13px;color:#475569;">
-          Vous avez noté cette conversation {{ activeTicket.rating }}/5 ⭐ · Merci !
+          {{ $t('support.rated') }} {{ activeTicket.rating }}/5 ⭐ {{ $t('support.rated2') }}
         </div>
 
         <!-- Input zone si ouvert -->
@@ -158,7 +158,7 @@
             <input ref="attachInput" type="file" accept="image/*,application/pdf,.doc,.docx" style="display:none" @change="onAttach" />
             <!-- Text -->
             <textarea v-model="inputText" @keydown.enter.exact.prevent="send"
-              placeholder="Écrivez votre message… (Entrée pour envoyer)"
+              :placeholder="$t('support.placeholder')"
               maxlength="300" rows="1"
               style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 14px;color:#e2e8f0;font-size:13px;resize:none;outline:none;font-family:inherit;line-height:1.5;transition:border .2s;max-height:120px;overflow-y:auto;"
               onfocus="this.style.borderColor='rgba(129,140,248,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"

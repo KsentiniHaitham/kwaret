@@ -9,15 +9,15 @@
     <div v-else-if="!product" style="text-align:center;padding:80px 0;">
       <div style="font-size:56px;margin-bottom:16px;">😕</div>
       <p style="color:#475569;font-size:16px;margin-bottom:20px;">Produit introuvable</p>
-      <RouterLink to="/shop" style="color:#818cf8;text-decoration:none;">← Retour à la boutique</RouterLink>
+      <RouterLink to="/shop" style="color:#818cf8;text-decoration:none;">{{ $t('common.back_shop') }}</RouterLink>
     </div>
 
     <div v-else>
       <!-- Breadcrumb -->
       <nav style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;margin-bottom:32px;">
-        <RouterLink to="/" style="color:#334155;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#818cf8'" onmouseout="this.style.color='#334155'">Accueil</RouterLink>
+        <RouterLink to="/" style="color:#334155;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#818cf8'" onmouseout="this.style.color='#334155'">{{ $t('nav.home') }}</RouterLink>
         <span>/</span>
-        <RouterLink to="/shop" style="color:#334155;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#818cf8'" onmouseout="this.style.color='#334155'">Boutique</RouterLink>
+        <RouterLink to="/shop" style="color:#334155;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#818cf8'" onmouseout="this.style.color='#334155'">{{ $t('nav.shop') }}</RouterLink>
         <span>/</span>
         <span style="color:#94a3b8;">{{ product.name }}</span>
       </nav>
@@ -50,7 +50,7 @@
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;">
             <div :style="product.stock > 0 ? 'background:#34d399;' : 'background:#f87171;'" style="width:8px;height:8px;border-radius:50%;"></div>
             <span :style="product.stock > 0 ? 'color:#34d399;' : 'color:#f87171;'" style="font-size:13px;font-weight:600;">
-              {{ product.stock === 0 ? 'Rupture de stock' : 'En stock' }}
+              {{ product.stock === 0 ? $t('product.sold_out') : $t('product.stock') }}
             </span>
           </div>
 
@@ -61,7 +61,7 @@
             style="width:100%;padding:16px;font-size:15px;font-weight:700;border:none;display:flex;align-items:center;justify-content:center;gap:8px;"
             :style="product.stock === 0 ? 'opacity:.4;cursor:not-allowed;' : 'cursor:pointer;'"
           >
-            🛒 {{ product.stock === 0 ? 'Indisponible' : 'Ajouter au panier' }}
+            🛒 {{ product.stock === 0 ? $t('product.sold_out') : $t('product.add_cart') }}
           </button>
 
           <!-- Feature pills -->
