@@ -5,6 +5,11 @@ import router from './router'
 import './style.css'
 
 const app = createApp(App)
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
 app.mount('#app')
+
+// Initialize language (RTL/LTR direction)
+import { useLangStore } from './stores/lang'
+useLangStore().init()

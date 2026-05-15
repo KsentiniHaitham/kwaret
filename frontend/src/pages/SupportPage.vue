@@ -118,7 +118,7 @@
         <div v-if="activeTicket.status==='closed' && !activeTicket.rating"
           style="padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(99,102,241,0.05);">
           <div style="font-size:13px;font-weight:600;color:#94a3b8;margin-bottom:10px;text-align:center;">
-            La discussion est fermée. Notez votre expérience :
+            🔒 {{ activeTicket.type === 'order' ? 'Ticket fermé automatiquement — commande traitée.' : 'La discussion est fermée.' }} Notez votre expérience :
           </div>
           <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;">
             <span v-for="s in 5" :key="s"
@@ -189,7 +189,7 @@
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import api from '@/api'
 
-const apiBase       = 'http://localhost:8000'
+const apiBase       = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace('/api', '')
 const tickets       = ref([])
 const loadingTickets = ref(true)
 const activeTicket  = ref(null)

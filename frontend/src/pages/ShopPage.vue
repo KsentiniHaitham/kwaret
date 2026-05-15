@@ -5,9 +5,9 @@
       <h1 style="font-size:42px;font-weight:800;letter-spacing:-1.5px;">Notre <span class="gradient-text">boutique</span></h1>
     </div>
 
-    <div style="display:flex;gap:28px;align-items:flex-start;">
+    <div class="shop-layout" style="display:flex;gap:28px;align-items:flex-start;">
       <!-- Sidebar -->
-      <aside style="width:220px;flex-shrink:0;position:sticky;top:84px;">
+      <aside class="shop-sidebar" style="width:220px;flex-shrink:0;position:sticky;top:84px;">
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:20px;">
           <div style="font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Catégories</div>
           <div style="display:flex;flex-direction:column;gap:4px;">
@@ -129,7 +129,7 @@
         </div>
 
         <!-- Grid -->
-        <div v-else style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+        <div v-else class="shop-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
           <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product" @add-to-cart="addToCart"/>
         </div>
       </div>

@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Entity\WalletRecharge;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
+use App\Repository\PromoCodeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,6 +36,7 @@ class OrderController extends AbstractController
     public function create(
         Request $request,
         ProductRepository $productRepo,
+        PromoCodeRepository $promoRepo,
         EntityManagerInterface $em,
         SerializerInterface $serializer
     ): JsonResponse {
@@ -79,6 +81,18 @@ class OrderController extends AbstractController
             $product->setStock($product->getStock() - $qty);
         }
 
+        // Apply promo code discount if provided
+        $promoDiscount = 0.0;
+        $promoEntity   = null;
+        if (!empty($data['promoCode'])) {
+            $code = strtoupper(trim($data['promoCode']));
+            $promoEntity = $promoRepo->findOneBy(['code' => $code]);
+            if ($promoEntity && $promoEntity->isValid()) {
+                $promoDiscount = $promoEntity->computeDiscount($total);
+                $total         = max(0, $total - $promoDiscount);
+            }
+        }
+
         $order->setTotal((string) $total);
 
         // Pay with wallet balance if requested
@@ -90,9 +104,18 @@ class OrderController extends AbstractController
             }
             $user->deductBalance($total);
             $order->setStatus(Order::STATUS_PAID);
+            $order->setPaymentMethod('wallet');
+        } else {
+            $order->setPaymentMethod($data['paymentMethod'] ?? 'cash');
         }
 
         $em->persist($order);
+
+        // Mark promo code as used
+        if ($promoEntity) {
+            $promoEntity->incrementUsed();
+        }
+
         $em->flush();
 
         // Ticket de support automatique dès que la commande est payée via le portefeuille

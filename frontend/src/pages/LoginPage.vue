@@ -51,7 +51,10 @@
           </button>
         </form>
 
-        <p style="margin-top:24px;text-align:center;color:#475569;font-size:13px;">
+        <p style="margin-top:16px;text-align:center;">
+          <RouterLink to="/forgot-password" style="color:#64748b;text-decoration:none;font-size:12px;font-weight:500;">Mot de passe oublié ?</RouterLink>
+        </p>
+        <p style="margin-top:12px;text-align:center;color:#475569;font-size:13px;">
           Pas encore de compte ?
           <RouterLink to="/register" style="color:#818cf8;text-decoration:none;font-weight:600;">Créer un compte</RouterLink>
         </p>

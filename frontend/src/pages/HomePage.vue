@@ -3,7 +3,7 @@
 
     <!-- Hero -->
     <section style="min-height:88vh;display:flex;align-items:center;padding:60px 0;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;width:100%;">
+      <div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;width:100%;">
         <div>
           <div class="pill" style="margin-bottom:28px;">
             <span style="width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);display:inline-block;"></span>
@@ -30,7 +30,7 @@
         </div>
 
         <!-- Mini product cards -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="hero-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
           <div v-if="loadingFeatured" v-for="n in 4" :key="n" style="height:130px;border-radius:20px;background:rgba(255,255,255,0.03);animation:pulse 1.5s infinite;"></div>
           <template v-else>
             <div
@@ -54,7 +54,7 @@
         <div style="display:inline-block;background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.2);color:#818cf8;font-size:11px;font-weight:700;padding:5px 14px;border-radius:100px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Catalogue</div>
         <h2 style="font-size:38px;font-weight:800;letter-spacing:-1px;">Nos <span class="gradient-text">catégories</span></h2>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+      <div class="cat-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
         <RouterLink
           v-for="cat in categories" :key="cat.id"
           :to="`/shop?category=${cat.id}`"
@@ -80,7 +80,7 @@
       <div v-if="loadingFeatured" style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
         <div v-for="n in 4" :key="n" style="height:280px;border-radius:20px;background:rgba(255,255,255,0.03);"></div>
       </div>
-      <div v-else style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+      <div v-else class="top-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
         <ProductCard v-for="p in featured" :key="p.id" :product="p" @add-to-cart="addToCart"/>
       </div>
     </section>

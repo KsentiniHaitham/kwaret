@@ -53,6 +53,71 @@
       </div>
     </div>
 
+    <!-- Gift Cards section -->
+    <div class="card" style="padding:28px;margin-top:20px;">
+      <div style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">🎁 Cartes cadeaux</div>
+
+      <!-- Redeem a gift card -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:14px;font-weight:600;color:#94a3b8;margin-bottom:10px;">Utiliser un code cadeau</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input v-model="redeemCode" type="text" placeholder="KWARET-XXXX-XXXX"
+            style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 14px;color:#e2e8f0;font-size:14px;outline:none;transition:border .2s;text-transform:uppercase;font-family:monospace;"
+            onfocus="this.style.borderColor='rgba(129,140,248,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
+          <button @click="redeemCard" :disabled="!redeemCode.trim() || redeeming"
+            class="btn-primary" style="padding:10px 20px;font-size:13px;border:none;cursor:pointer;white-space:nowrap;">
+            {{ redeeming ? '…' : 'Utiliser' }}
+          </button>
+        </div>
+        <div v-if="redeemError" style="margin-top:8px;font-size:12px;color:#f87171;">{{ redeemError }}</div>
+        <div v-if="redeemSuccess" style="margin-top:8px;font-size:12px;color:#34d399;font-weight:600;">{{ redeemSuccess }}</div>
+      </div>
+
+      <!-- Buy a gift card -->
+      <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;">
+        <div style="font-size:14px;font-weight:600;color:#94a3b8;margin-bottom:14px;">Acheter une carte cadeau</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <button v-for="amt in [10, 20, 50, 100, 200]" :key="amt"
+            @click="buyAmount = amt"
+            :class="buyAmount === amt ? 'btn-primary' : ''"
+            style="padding:10px 20px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;"
+            :style="buyAmount === amt ? 'border:none;' : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;'">
+            {{ amt }} TND
+          </button>
+        </div>
+        <div v-if="buyAmount" style="margin-bottom:12px;font-size:13px;color:#64748b;">
+          Coût : <strong style="color:#e2e8f0;">{{ buyAmount }} TND</strong> déduits de votre portefeuille → vous recevrez un code cadeau à partager.
+        </div>
+        <div v-if="buyError" style="margin-bottom:8px;font-size:12px;color:#f87171;">{{ buyError }}</div>
+        <div v-if="newCard" style="margin-bottom:12px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:12px;padding:14px 18px;">
+          <div style="font-size:12px;color:#34d399;font-weight:700;margin-bottom:6px;">✅ Carte cadeau créée !</div>
+          <div style="font-family:monospace;font-size:18px;font-weight:800;color:#e2e8f0;letter-spacing:2px;">{{ newCard.code }}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px;">Valeur : {{ newCard.initialValue }} TND</div>
+        </div>
+        <button @click="buyCard" :disabled="!buyAmount || buying"
+          class="btn-primary" style="padding:10px 24px;font-size:13px;border:none;cursor:pointer;"
+          :style="!buyAmount ? 'opacity:.4;cursor:not-allowed;' : ''">
+          {{ buying ? 'Achat...' : `Acheter ${buyAmount ? buyAmount + ' TND' : ''}` }}
+        </button>
+      </div>
+    </div>
+
+    <!-- My gift cards list -->
+    <div v-if="myCards.length > 0" class="card" style="padding:28px;margin-top:20px;">
+      <div style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Mes cartes cadeaux</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div v-for="card in myCards" :key="card.id"
+          style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:8px;">
+          <span style="font-family:monospace;font-size:14px;font-weight:700;color:#a5b4fc;">{{ card.code }}</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:13px;color:#64748b;">{{ card.initialValue }} TND</span>
+            <span v-if="card.isRedeemed" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(71,85,105,0.2);color:#475569;border:1px solid rgba(71,85,105,0.3);">Utilisée</span>
+            <span v-else style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);">Disponible</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Recharge modal -->
     <RechargeModal v-if="showRecharge" @close="showRecharge=false" @success="onSuccess" />
   </div>
@@ -68,8 +133,19 @@ const history     = ref([])
 const loading     = ref(true)
 const showRecharge = ref(false)
 
-const methodLabel = m => ({ paypal:'PayPal', flouci:'Flouci', ooredoo:'Ooredoo', d17:'D17', poste:'Poste TN', crypto:'Crypto', refund:'Remboursement', cashback:'Cashback' }[m] || m)
-const methodIcon  = m => ({ paypal:'💳', flouci:'📲', ooredoo:'📡', d17:'🏦', poste:'📮', crypto:'₿', refund:'↩️', cashback:'🎁' }[m] || '💰')
+// Gift card state
+const redeemCode    = ref('')
+const redeeming     = ref(false)
+const redeemError   = ref('')
+const redeemSuccess = ref('')
+const buyAmount     = ref(null)
+const buying        = ref(false)
+const buyError      = ref('')
+const newCard       = ref(null)
+const myCards       = ref([])
+
+const methodLabel = m => ({ paypal:'PayPal', flouci:'Flouci', ooredoo:'Ooredoo', d17:'D17', poste:'Poste TN', crypto:'Crypto', refund:'Remboursement', cashback:'Cashback', gift_card:'Carte cadeau', gift_card_purchase:'Achat carte cadeau' }[m] || m)
+const methodIcon  = m => ({ paypal:'💳', flouci:'📲', ooredoo:'📡', d17:'🏦', poste:'📮', crypto:'₿', refund:'↩️', cashback:'🎁', gift_card:'🎁', gift_card_purchase:'🎁' }[m] || '💰')
 
 function statusLabel(s) { return { pending:'En attente', approved:'Approuvé', rejected:'Rejeté' }[s] || s }
 function statusStyle(s) {
@@ -78,13 +154,48 @@ function statusStyle(s) {
 function formatDate(d) { return new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) }
 
 async function load() {
-  const [br, hr] = await Promise.all([
+  const [br, hr, gr] = await Promise.all([
     api.get('/wallet').catch(() => ({ data: { balance: 0 } })),
     api.get('/wallet/history').catch(() => ({ data: [] })),
+    api.get('/gift-cards').catch(() => ({ data: [] })),
   ])
   balance.value = parseFloat(br.data.balance)
   history.value = hr.data
+  myCards.value = gr.data
   loading.value = false
+}
+
+async function redeemCard() {
+  redeemError.value   = ''
+  redeemSuccess.value = ''
+  redeeming.value     = true
+  try {
+    const r = await api.post('/gift-cards/redeem', { code: redeemCode.value })
+    redeemSuccess.value = r.data.message
+    redeemCode.value    = ''
+    balance.value = r.data.newBalance
+    await load()
+  } catch (e) {
+    redeemError.value = e.response?.data?.message || 'Code invalide'
+  } finally {
+    redeeming.value = false
+  }
+}
+
+async function buyCard() {
+  buyError.value = ''
+  newCard.value  = null
+  buying.value   = true
+  try {
+    const r = await api.post('/gift-cards/buy', { amount: buyAmount.value })
+    newCard.value  = r.data
+    buyAmount.value = null
+    await load()
+  } catch (e) {
+    buyError.value = e.response?.data?.message || 'Erreur lors de l\'achat'
+  } finally {
+    buying.value = false
+  }
 }
 
 async function onSuccess() {

@@ -55,6 +55,8 @@ const navItems = [
   { to: '/admin/users',      icon: '👥', label: 'Utilisateurs' },
   { to: '/admin/recharges',  icon: '💳', label: 'Recharges' },
   { to: '/admin/tickets',    icon: '💬', label: 'Support' },
+  { to: '/admin/promos',     icon: '🏷️', label: 'Codes promo' },
+  { to: '/admin/gift-cards', icon: '🎁', label: 'Cartes cadeaux' },
   { to: '/admin/stats',      icon: '📈', label: 'Statistiques' },
 ]
 

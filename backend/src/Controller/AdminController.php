@@ -3,16 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Entity\GiftCard;
 use App\Entity\Notification;
 use App\Entity\Order;
 use App\Entity\Product;
+use App\Entity\PromoCode;
 use App\Entity\Ticket;
 use App\Entity\TicketMessage;
 use App\Entity\WalletRecharge;
 use App\Repository\CategoryRepository;
+use App\Repository\GiftCardRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
+use App\Repository\PromoCodeRepository;
 use App\Repository\TicketRepository;
 use App\Repository\UserRepository;
 use App\Repository\WalletRechargeRepository;
@@ -87,16 +91,36 @@ class AdminController extends AbstractController
              WHERE p.stock <= 5 AND p.isActive = true ORDER BY p.stock ASC'
         )->getArrayResult();
 
+        // Payment method breakdown
+        $byPaymentMethod = [];
+        foreach ($allOrders as $o) {
+            $method = $o->getPaymentMethod() ?? 'unknown';
+            $byPaymentMethod[$method] = ($byPaymentMethod[$method] ?? 0) + 1;
+        }
+
+        // Revenue by payment method (paid/delivered only)
+        $revenueByPaymentMethod = [];
+        foreach ($allOrders as $o) {
+            if (!in_array($o->getStatus(), [Order::STATUS_PAID, Order::STATUS_DELIVERED])) continue;
+            $method = $o->getPaymentMethod() ?? 'unknown';
+            $revenueByPaymentMethod[$method] = ($revenueByPaymentMethod[$method] ?? 0) + (float) $o->getTotal();
+        }
+        foreach ($revenueByPaymentMethod as $k => $v) {
+            $revenueByPaymentMethod[$k] = round($v, 2);
+        }
+
         return $this->json([
-            'totalOrders'    => count($allOrders),
-            'totalRevenue'   => round($totalRevenue, 2),
-            'totalUsers'     => count($userRepo->findAll()),
-            'totalProducts'  => count($productRepo->findAll()),
-            'ordersByStatus' => $byStatus,
-            'revenueByDay'   => $revenueByDay,
-            'revenueByMonth' => $revenueByMonth,
-            'topProducts'    => $topProducts,
-            'lowStock'       => $lowStock,
+            'totalOrders'            => count($allOrders),
+            'totalRevenue'           => round($totalRevenue, 2),
+            'totalUsers'             => count($userRepo->findAll()),
+            'totalProducts'          => count($productRepo->findAll()),
+            'ordersByStatus'         => $byStatus,
+            'revenueByDay'           => $revenueByDay,
+            'revenueByMonth'         => $revenueByMonth,
+            'topProducts'            => $topProducts,
+            'lowStock'               => $lowStock,
+            'byPaymentMethod'        => $byPaymentMethod,
+            'revenueByPaymentMethod' => $revenueByPaymentMethod,
         ]);
     }
 
@@ -113,7 +137,7 @@ class AdminController extends AbstractController
     }
 
     #[Route('/orders/{id}/status', name: 'api_admin_order_status', methods: ['PATCH'])]
-    public function updateOrderStatus(int $id, Request $request, OrderRepository $repo, EntityManagerInterface $em): JsonResponse
+    public function updateOrderStatus(int $id, Request $request, OrderRepository $repo, TicketRepository $ticketRepo, EntityManagerInterface $em): JsonResponse
     {
         $order = $repo->find($id);
         if (!$order) return $this->json(['message' => 'Commande introuvable'], 404);
@@ -140,6 +164,27 @@ class AdminController extends AbstractController
             ->setMessage("Commande #{$order->getId()} : {$statusLabel}")
             ->setData(['orderId' => $order->getId(), 'status' => $data['status']]);
         $em->persist($notif);
+
+        // Auto-close related order ticket when order is processed
+        if (in_array($data['status'], [Order::STATUS_DELIVERED, Order::STATUS_CANCELLED])) {
+            $relatedTickets = $ticketRepo->findBy([
+                'type'        => Ticket::TYPE_ORDER,
+                'referenceId' => $order->getId(),
+                'status'      => Ticket::STATUS_OPEN,
+            ]);
+            foreach ($relatedTickets as $ticket) {
+                $ticket->setStatus(Ticket::STATUS_CLOSED);
+                $ticket->setClosedAt(new \DateTimeImmutable());
+                // Add a system message to inform the user
+                $sysMsg = (new TicketMessage())
+                    ->setTicket($ticket)
+                    ->setIsAdmin(true)
+                    ->setContent($data['status'] === Order::STATUS_DELIVERED
+                        ? '✅ Votre commande a été livrée. Ce ticket est maintenant fermé automatiquement.'
+                        : '❌ Votre commande a été annulée. Ce ticket est maintenant fermé automatiquement.');
+                $em->persist($sysMsg);
+            }
+        }
 
         $em->flush();
 
@@ -672,6 +717,115 @@ class AdminController extends AbstractController
         $n->setIsRead(true);
         $em->flush();
         return $this->json(['message' => 'Lu']);
+    }
+
+    // ──────────────────────────── PROMO CODES ─────────────────────
+
+    #[Route('/promos', name: 'api_admin_promos_list', methods: ['GET'])]
+    public function promoList(PromoCodeRepository $repo): JsonResponse
+    {
+        $promos = $repo->findBy([], ['createdAt' => 'DESC']);
+        return $this->json(array_map(fn(PromoCode $p) => [
+            'id'        => $p->getId(),
+            'code'      => $p->getCode(),
+            'type'      => $p->getType(),
+            'value'     => (float) $p->getValue(),
+            'maxUses'   => $p->getMaxUses(),
+            'usedCount' => $p->getUsedCount(),
+            'expiresAt' => $p->getExpiresAt()?->format(\DateTimeInterface::ATOM),
+            'isActive'  => $p->isActive(),
+            'createdAt' => $p->getCreatedAt()->format(\DateTimeInterface::ATOM),
+        ], $promos));
+    }
+
+    #[Route('/promos', name: 'api_admin_promos_create', methods: ['POST'])]
+    public function promoCreate(Request $req, PromoCodeRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $data = json_decode($req->getContent(), true) ?? [];
+        $code = strtoupper(trim($data['code'] ?? ''));
+
+        if (!$code || !isset($data['value'])) {
+            return $this->json(['message' => 'Code et valeur requis'], 400);
+        }
+        if ($repo->findOneBy(['code' => $code])) {
+            return $this->json(['message' => 'Ce code existe déjà'], 409);
+        }
+
+        $promo = (new PromoCode())
+            ->setCode($code)
+            ->setType(in_array($data['type'] ?? '', ['percent', 'fixed']) ? $data['type'] : 'percent')
+            ->setValue((string) max(0, (float) $data['value']))
+            ->setMaxUses(isset($data['maxUses']) && $data['maxUses'] > 0 ? (int) $data['maxUses'] : null)
+            ->setIsActive($data['isActive'] ?? true);
+
+        if (!empty($data['expiresAt'])) {
+            try { $promo->setExpiresAt(new \DateTimeImmutable($data['expiresAt'])); } catch (\Exception) {}
+        }
+
+        $em->persist($promo);
+        $em->flush();
+
+        return $this->json(['message' => 'Code promo créé', 'id' => $promo->getId()], 201);
+    }
+
+    #[Route('/promos/{id}', name: 'api_admin_promos_delete', methods: ['DELETE'])]
+    public function promoDelete(int $id, PromoCodeRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $promo = $repo->find($id);
+        if (!$promo) return $this->json(['message' => 'Code introuvable'], 404);
+        $em->remove($promo);
+        $em->flush();
+        return $this->json(['message' => 'Code supprimé']);
+    }
+
+    #[Route('/promos/{id}/toggle', name: 'api_admin_promos_toggle', methods: ['PATCH'])]
+    public function promoToggle(int $id, PromoCodeRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $promo = $repo->find($id);
+        if (!$promo) return $this->json(['message' => 'Code introuvable'], 404);
+        $promo->setIsActive(!$promo->isActive());
+        $em->flush();
+        return $this->json(['message' => 'Statut mis à jour', 'isActive' => $promo->isActive()]);
+    }
+
+    // ──────────────────────────── GIFT CARDS ──────────────────────
+
+    #[Route('/gift-cards', name: 'api_admin_gift_cards_list', methods: ['GET'])]
+    public function giftCardList(GiftCardRepository $repo): JsonResponse
+    {
+        $cards = $repo->findBy([], ['createdAt' => 'DESC']);
+        return $this->json(array_map(fn(GiftCard $g) => [
+            'id'             => $g->getId(),
+            'code'           => $g->getCode(),
+            'initialValue'   => (float) $g->getInitialValue(),
+            'remainingValue' => (float) $g->getRemainingValue(),
+            'isActive'       => $g->isActive(),
+            'isRedeemed'     => $g->isRedeemed(),
+            'purchasedBy'    => $g->getPurchasedBy() ? $g->getPurchasedBy()->getFirstName() . ' ' . $g->getPurchasedBy()->getLastName() : 'Admin',
+            'createdAt'      => $g->getCreatedAt()->format(\DateTimeInterface::ATOM),
+        ], $cards));
+    }
+
+    #[Route('/gift-cards/generate', name: 'api_admin_gift_cards_generate', methods: ['POST'])]
+    public function giftCardGenerate(Request $req, EntityManagerInterface $em): JsonResponse
+    {
+        $data   = json_decode($req->getContent(), true) ?? [];
+        $amount = (float) ($data['amount'] ?? 0);
+        $qty    = max(1, min(20, (int) ($data['quantity'] ?? 1)));
+
+        if ($amount <= 0) {
+            return $this->json(['message' => 'Montant invalide'], 400);
+        }
+
+        $codes = [];
+        for ($i = 0; $i < $qty; $i++) {
+            $card = (new GiftCard())->setInitialValue((string) $amount);
+            $em->persist($card);
+            $codes[] = $card->getCode();
+        }
+        $em->flush();
+
+        return $this->json(['message' => "{$qty} carte(s) cadeau générée(s)", 'codes' => $codes], 201);
     }
 
     // ──────────────────────────── UTILS ──────────────────────────

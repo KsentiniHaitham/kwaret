@@ -22,9 +22,9 @@
         <span style="color:#94a3b8;">{{ product.name }}</span>
       </nav>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;">
+      <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;">
         <!-- Image -->
-        <div style="position:relative;border-radius:24px;overflow:hidden;height:380px;background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(168,85,247,0.1));display:flex;align-items:center;justify-content:center;font-size:96px;border:1px solid rgba(255,255,255,0.07);">
+        <div class="product-image" style="position:relative;border-radius:24px;overflow:hidden;height:380px;background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(168,85,247,0.1));display:flex;align-items:center;justify-content:center;font-size:96px;border:1px solid rgba(255,255,255,0.07);">
           <img v-if="product.image" :src="product.image" :alt="product.name" style="width:100%;height:100%;object-fit:cover;"/>
           <span v-else>{{ categoryIcon }}</span>
           <div v-if="product.stock === 0" class="sold-out-overlay">

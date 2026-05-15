@@ -70,6 +70,33 @@
       </div>
     </div>
 
+    <!-- Charts row 3 — payment methods -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+      <!-- Payment method orders donut -->
+      <div class="card" style="padding:28px;">
+        <div style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">Commandes par méthode de paiement</div>
+        <div style="position:relative;height:200px;display:flex;align-items:center;justify-content:center;">
+          <canvas ref="payMethodChart"></canvas>
+        </div>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:7px;">
+          <div v-for="item in payMethodLegend" :key="item.label" style="display:flex;align-items:center;justify-content:space-between;font-size:12px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div :style="`background:${item.color};`" style="width:8px;height:8px;border-radius:50%;"></div>
+              <span style="color:#64748b;">{{ item.label }}</span>
+            </div>
+            <span style="color:#e2e8f0;font-weight:600;">{{ item.count }}</span>
+          </div>
+        </div>
+      </div>
+      <!-- Revenue by payment method bar -->
+      <div class="card" style="padding:28px;">
+        <div style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">Revenus par méthode de paiement</div>
+        <div style="position:relative;height:220px;">
+          <canvas ref="payRevenueChart"></canvas>
+        </div>
+      </div>
+    </div>
+
     <!-- Low stock table -->
     <div class="card" style="padding:28px;">
       <div style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">
@@ -111,10 +138,12 @@ Chart.register(...registerables)
 const stats = ref(null)
 const loading = ref(true)
 
-const revenueChart = ref(null)
-const statusChart  = ref(null)
-const monthChart   = ref(null)
-const topChart     = ref(null)
+const revenueChart   = ref(null)
+const statusChart    = ref(null)
+const monthChart     = ref(null)
+const topChart       = ref(null)
+const payMethodChart  = ref(null)
+const payRevenueChart = ref(null)
 
 const kpis = computed(() => [
   { icon: '💰', label: "Chiffre d'affaires total",  value: stats.value ? `${stats.value.totalRevenue.toFixed(2)} TND` : '—', colorClass: 'gradient-text-cyan' },
@@ -122,6 +151,19 @@ const kpis = computed(() => [
   { icon: '👥', label: 'Clients inscrits',           value: stats.value?.totalUsers ?? '—',    colorClass: 'gradient-text' },
   { icon: '🛍️', label: 'Produits catalogués',        value: stats.value?.totalProducts ?? '—', colorClass: 'gradient-text-cyan' },
 ])
+
+const PAY_LABELS = { wallet: '💳 Portefeuille', cash: '💵 Cash', card: '🏦 Carte bancaire', unknown: '❓ Inconnu' }
+const PAY_COLORS = { wallet: '#818cf8', cash: '#34d399', card: '#f59e0b', unknown: '#94a3b8' }
+
+const payMethodLegend = computed(() => {
+  if (!stats.value) return []
+  const m = stats.value.byPaymentMethod || {}
+  return Object.entries(m).map(([k, v]) => ({
+    label: PAY_LABELS[k] || k,
+    color: PAY_COLORS[k] || '#94a3b8',
+    count: v,
+  }))
+})
 
 const statusLegend = computed(() => {
   if (!stats.value) return []
@@ -244,6 +286,53 @@ function buildTopChart(data) {
   })
 }
 
+function buildPayMethodChart(data) {
+  if (!data || !Object.keys(data).length) return
+  const keys    = Object.keys(data)
+  const values  = Object.values(data)
+  const colors  = keys.map(k => PAY_COLORS[k] || '#94a3b8')
+  new Chart(payMethodChart.value, {
+    type: 'doughnut',
+    data: {
+      labels: keys.map(k => PAY_LABELS[k] || k),
+      datasets: [{ data: values, backgroundColor: colors.map(c => c + 'cc'), borderColor: colors, borderWidth: 1, hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '68%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } } },
+    }
+  })
+}
+
+function buildPayRevenueChart(data) {
+  if (!data || !Object.keys(data).length) return
+  const keys   = Object.keys(data)
+  const values = Object.values(data)
+  const colors = keys.map(k => PAY_COLORS[k] || '#94a3b8')
+  new Chart(payRevenueChart.value, {
+    type: 'bar',
+    data: {
+      labels: keys.map(k => PAY_LABELS[k] || k),
+      datasets: [{
+        label: 'Revenus (TND)',
+        data: values,
+        backgroundColor: colors.map(c => c + '99'),
+        borderColor: colors,
+        borderWidth: 1,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: chartDefaults.gridColor }, ticks: { color: chartDefaults.tickColor, font: chartDefaults.font } },
+        y: { grid: { color: chartDefaults.gridColor }, ticks: { color: chartDefaults.tickColor, font: chartDefaults.font } },
+      },
+    }
+  })
+}
+
 onMounted(async () => {
   const res = await api.get('/admin/stats').catch(() => ({ data: null }))
   stats.value = res.data
@@ -255,6 +344,8 @@ onMounted(async () => {
   buildStatusChart(stats.value.ordersByStatus || {})
   buildMonthChart(stats.value.revenueByMonth || [])
   buildTopChart(stats.value.topProducts || [])
+  buildPayMethodChart(stats.value.byPaymentMethod || {})
+  buildPayRevenueChart(stats.value.revenueByPaymentMethod || {})
 })
 </script>
 

@@ -32,7 +32,7 @@
 
         <!-- Formulaire -->
         <form @submit.prevent="register" style="display:flex;flex-direction:column;gap:18px;">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="auth-name-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
               <label style="display:block;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Prénom</label>
               <input v-model="form.firstName" type="text" required placeholder="Prénom" class="form-input"/>

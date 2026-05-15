@@ -36,6 +36,10 @@ class Order
     #[Groups(['order:read'])]
     private ?string $total = null;
 
+    #[ORM\Column(length: 30, nullable: true)]
+    #[Groups(['order:read'])]
+    private ?string $paymentMethod = null;
+
     #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'order', cascade: ['persist', 'remove'])]
     #[Groups(['order:read'])]
     private Collection $items;
@@ -66,4 +70,7 @@ class Order
 
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
     public function setCreatedAt(\DateTimeImmutable $createdAt): static { $this->createdAt = $createdAt; return $this; }
+
+    public function getPaymentMethod(): ?string { return $this->paymentMethod; }
+    public function setPaymentMethod(?string $paymentMethod): static { $this->paymentMethod = $paymentMethod; return $this; }
 }

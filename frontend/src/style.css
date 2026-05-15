@@ -144,6 +144,66 @@ body {
 .slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
 .slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(16px); }
 
+/* ══════════════════════════════
+   RESPONSIVE — Mobile first
+   ══════════════════════════════ */
+
+/* Hero section */
+@media (max-width: 768px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .hero-title { font-size: 36px !important; letter-spacing: -1px !important; }
+  .hero-cards { display: none !important; }
+  .cat-grid { grid-template-columns: repeat(2,1fr) !important; }
+  .top-grid { grid-template-columns: repeat(2,1fr) !important; }
+}
+
+/* Shop page */
+@media (max-width: 900px) {
+  .shop-layout { flex-direction: column !important; }
+  .shop-sidebar { width: 100% !important; position: static !important; }
+  .shop-grid { grid-template-columns: repeat(2,1fr) !important; }
+}
+@media (max-width: 540px) {
+  .shop-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Product page */
+@media (max-width: 768px) {
+  .product-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .product-image { height: 260px !important; }
+}
+
+/* Cart & Checkout */
+@media (max-width: 768px) {
+  .checkout-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Orders */
+@media (max-width: 640px) {
+  .orders-table { font-size: 12px !important; }
+  .orders-table th, .orders-table td { padding: 8px 6px !important; }
+}
+
+/* Auth pages */
+@media (max-width: 480px) {
+  .auth-name-grid { grid-template-columns: 1fr !important; }
+}
+
+/* General padding on mobile */
+@media (max-width: 640px) {
+  .page-wrapper { padding: 20px 16px 60px !important; }
+  .section-title { font-size: 28px !important; }
+}
+
+/* Admin */
+@media (max-width: 900px) {
+  .admin-layout { flex-direction: column !important; }
+  .admin-sidebar { width: 100% !important; }
+}
+@media (max-width: 640px) {
+  .admin-table-wrap { overflow-x: auto; }
+}
+
 input, select {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.1);
@@ -158,3 +218,13 @@ input, select {
 input:focus, select:focus { border-color: rgba(129,140,248,0.5); }
 input::placeholder { color: #374151; }
 select option { background: #111827; }
+
+/* ── RTL (Arabic) support ────────────────────────────────────── */
+[dir="rtl"] body { font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif; }
+[dir="rtl"] .nav-links { flex-direction: row-reverse; }
+[dir="rtl"] .nav-right { flex-direction: row-reverse; }
+[dir="rtl"] input, [dir="rtl"] textarea, [dir="rtl"] select { text-align: right; direction: rtl; }
+[dir="rtl"] .card { direction: rtl; }
+[dir="rtl"] .gradient-text { letter-spacing: 0; }
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3 { letter-spacing: 0; }
+
